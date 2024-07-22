@@ -1,0 +1,31 @@
+//Tabela de Usuários:
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha_hash VARCHAR(255) NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+//Tabela de Transações:
+
+CREATE TABLE transacoes (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    tipo VARCHAR(10) NOT NULL CHECK (tipo IN ('entrada', 'despesa')),
+    categoria VARCHAR(50) NOT NULL,
+    valor DECIMAL(10, 2) NOT NULL,
+    data DATE NOT NULL,
+    descricao TEXT,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+// id: Identificador único para cada transação.
+usuario_id: ID do usuário ao qual a transação pertence (chave estrangeira).
+tipo: Tipo de transação, pode ser 'entrada' ou 'despesa'.
+categoria: Categoria da transação (ex.: alimentação, transporte).
+valor: Valor monetário da transação.
+data: Data em que a transação ocorreu.
+descricao: Descrição opcional da transação.
+criado_em: Data e hora em que a transação foi criada.
