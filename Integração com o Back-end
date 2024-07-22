@@ -1,0 +1,104 @@
+// No back-end, você pode criar rotas de API em Next.js para manipular essas operações. Aqui está um exemplo básico de como criar rotas para adicionar, listar, editar e remover transações.
+
+//Adicionando transação:
+
+// pages/api/transacoes/add.js
+import pool from '../../../db';
+
+export default async function handler(req, res) {
+  if (req.method === 'POST') {
+    const { usuario_id, tipo, categoria, valor, data, descricao } = req.body;
+
+    try {
+      const { rows } = await pool.query(
+        'INSERT INTO transacoes (usuario_id, tipo, categoria, valor, data, descricao) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        [usuario_id, tipo, categoria, valor, data, descricao]
+      );
+
+      res.status(201).json({ transacao: rows[0] });
+    } catch (error) {
+      res.status(500).json({ message: 'Erro ao adicionar transação' });
+    }
+  } else {
+    res.status(405).end(); // Método não permitido
+  }
+}
+
+//Listando transação:
+
+// pages/api/transacoes/list.js
+import pool from '../../../db';
+
+export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    const { usuario_id } = req.query;
+
+    try {
+      const { rows } = await pool.query('SELECT * FROM transacoes WHERE usuario_id = $1', [usuario_id]);
+
+      res.status(200).json({ transacoes: rows });
+    } catch (error) {
+      res.status(500).json({ message: 'Erro ao buscar transações' });
+    }
+  } else {
+    res.status(405).end(); // Método não permitido
+  }
+}
+
+
+//Editando Transação:
+
+// pages/api/transacoes/edit.js
+import pool from '../../../db';
+
+export default async function handler(req, res) {
+  if (req.method === 'PUT') {
+    const { id, categoria, valor } = req.body;
+
+    try {
+      const { rowCount } = await pool.query(
+        'UPDATE transacoes SET categoria = $1, valor = $2 WHERE id = $3',
+        [categoria, valor, id]
+      );
+
+      if (rowCount === 0) {
+        return res.status(404).json({ message: 'Transação não encontrada' });
+      }
+
+      res.status(200).json({ message: 'Transação atualizada com sucesso' });
+    } catch (error) {
+      res.status(500).json({ message: 'Erro ao atualizar transação' });
+    }
+  } else {
+    res.status(405).end(); // Método não permitido
+  }
+}
+
+//Removendo trasação:
+
+// pages/api/transacoes/delete.js
+import pool from '../../../db';
+
+export default async function handler(req, res) {
+  if (req.method === 'DELETE') {
+    const { id } = req.body;
+
+    try {
+      const { rowCount } = await pool.query('DELETE FROM transacoes WHERE id = $1', [id]);
+
+      if (rowCount === 0) {
+        return res.status(404).json({ message: 'Transação não encontrada' });
+      }
+
+      res.status(200).json({ message: 'Transação removida com sucesso' });
+    } catch (error) {
+      res.status(500).json({ message: 'Erro ao remover transação' });
+    }
+  } else {
+    res.status(405).end(); // Método não permitido
+  }
+}
+
+
+
+
